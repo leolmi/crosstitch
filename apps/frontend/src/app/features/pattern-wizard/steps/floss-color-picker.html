@@ -1,0 +1,81 @@
+<h2 mat-dialog-title>{{ 'floss-picker.title' | t }}</h2>
+
+<mat-dialog-content>
+  <mat-form-field appearance="outline" class="search">
+    <mat-label>{{ 'floss-picker.search-label' | t }}</mat-label>
+    <mat-icon matPrefix>search</mat-icon>
+    <input
+      matInput
+      [value]="query()"
+      (input)="query.set($any($event.target).value)"
+    />
+  </mat-form-field>
+
+  @if (!query() && inUse.length) {
+    <h3 class="section">{{ 'floss-picker.in-use' | t }}</h3>
+    <div class="color-list">
+      @for (color of inUse; track color.dmc) {
+        <button
+          type="button"
+          class="color-row"
+          [class.current]="isCurrent(color)"
+          (click)="pick(color)"
+        >
+          <span
+            class="swatch"
+            [style.background]="color.hex"
+            aria-hidden="true"
+          ></span>
+          <span class="code">{{ code(color) }}</span>
+          <span class="detail">
+            <span class="name">{{ color.name }}</span>
+            <span class="alt">{{ altCode(color) }}</span>
+          </span>
+          @if (isCurrent(color)) {
+            <mat-icon class="check">check</mat-icon>
+          }
+        </button>
+      }
+    </div>
+  }
+
+  <h3 class="section">
+    {{
+      (standard === 'anchor'
+        ? 'floss-picker.catalog-anchor'
+        : 'floss-picker.catalog-dmc'
+      ) | t
+    }}
+    <span class="count">({{ filtered().length }})</span>
+  </h3>
+  <div class="color-list catalog">
+    @for (color of filtered(); track color.dmc) {
+      <button
+        type="button"
+        class="color-row"
+        [class.current]="isCurrent(color)"
+        (click)="pick(color)"
+      >
+        <span
+          class="swatch"
+          [style.background]="color.hex"
+          aria-hidden="true"
+        ></span>
+        <span class="code">{{ code(color) }}</span>
+        <span class="detail">
+          <span class="name">{{ color.name }}</span>
+          <span class="alt">{{ altCode(color) }}</span>
+        </span>
+        @if (isCurrent(color)) {
+          <mat-icon class="check">check</mat-icon>
+        }
+      </button>
+    } @empty {
+      <p class="empty">{{ 'floss-picker.empty' | t }}</p>
+    }
+  </div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button matButton mat-dialog-close>{{ 'common.cancel' | t }}</button>
+</mat-dialog-actions>

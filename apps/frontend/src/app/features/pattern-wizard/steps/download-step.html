@@ -1,0 +1,100 @@
+@if (!store.hasDecomposition()) {
+  <p class="placeholder">{{ 'download.placeholder-decomp-first' | t }}</p>
+} @else if (store.decomposition(); as d) {
+  <div class="download">
+    <h2>{{ 'download.ready-title' | t }}</h2>
+
+    <mat-form-field appearance="outline" class="name-field">
+      <mat-label>{{ 'download.title-label' | t }}</mat-label>
+      <input
+        matInput
+        [value]="store.title()"
+        (input)="setTitle($any($event.target).value)"
+      />
+    </mat-form-field>
+
+    <dl class="summary">
+      <div>
+        <dt>{{ 'download.summary.dimensions' | t }}</dt>
+        <dd>
+          {{ 'decomposition.info-points' | t: { width: d.width, height: d.height } }}
+        </dd>
+      </div>
+      <div>
+        <dt>{{ 'download.summary.measure' | t }}</dt>
+        <dd>
+          {{ d.widthCm | number: '1.0-1' }} × {{ d.heightCm | number: '1.0-1' }} cm
+        </dd>
+      </div>
+      <div>
+        <dt>{{ 'download.summary.fabric' | t }}</dt>
+        <dd>{{ d.settings.fabricCount }} count</dd>
+      </div>
+      <div>
+        <dt>{{ 'download.summary.colors' | t }}</dt>
+        <dd>{{ d.palette.length }}</dd>
+      </div>
+      <div>
+        <dt>{{ 'download.summary.total-stitches' | t }}</dt>
+        <dd>{{ totalStitches() }}</dd>
+      </div>
+      <div>
+        <dt>{{ 'download.summary.standard' | t }}</dt>
+        <dd>{{ d.settings.standard === 'anchor' ? 'Anchor' : 'DMC' }}</dd>
+      </div>
+    </dl>
+
+    <div class="floss">
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>{{ 'download.strands-label' | t }}</mat-label>
+        <mat-select
+          [value]="strands()"
+          (selectionChange)="strands.set($event.value)"
+        >
+          <mat-option [value]="1">{{ 'download.strands-1' | t }}</mat-option>
+          <mat-option [value]="2">{{ 'download.strands-2' | t }}</mat-option>
+          <mat-option [value]="3">{{ 'download.strands-3' | t }}</mat-option>
+          <mat-option [value]="6">{{ 'download.strands-6' | t }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+      <p class="floss-total">
+        {{ 'download.floss-estimated-label' | t }}
+        <strong>{{ 'download.floss-skeins' | t: { count: flossTotals().skeins } }}</strong>
+        {{ 'download.floss-meters-note' | t: { meters: metersRounded() } }}
+      </p>
+    </div>
+
+    <p class="hint">
+      {{ 'download.pdf-hint' | t }}
+    </p>
+
+    <div class="actions">
+      <button matButton="tonal" (click)="save()" [disabled]="saving()">
+        <mat-icon>save</mat-icon>
+        {{ 'download.save-btn' | t }}
+      </button>
+      <button
+        matButton="filled"
+        (click)="download()"
+        [disabled]="generating()"
+      >
+        <mat-icon>picture_as_pdf</mat-icon>
+        {{ 'download.download-btn' | t }}
+      </button>
+    </div>
+
+    @if (generating() || saving()) {
+      <mat-progress-bar
+        class="progress-bar"
+        mode="indeterminate"
+        [attr.aria-label]="'download.busy-aria' | t"
+      />
+    }
+    @if (error(); as message) {
+      <p class="error" role="alert">
+        <mat-icon>error_outline</mat-icon>
+        {{ message }}
+      </p>
+    }
+  </div>
+}

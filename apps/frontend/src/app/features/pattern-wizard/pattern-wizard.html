@@ -1,0 +1,52 @@
+<mat-stepper #stepper [linear]="true" orientation="horizontal" class="wizard">
+  <mat-step [label]="'wizard.step.source' | t" [completed]="store.hasSource()">
+    <app-source-step />
+    <div class="step-actions">
+      <button
+        matButton="filled"
+        matStepperNext
+        [disabled]="!store.hasSource()"
+      >
+        {{ 'common.next' | t }}
+      </button>
+    </div>
+  </mat-step>
+
+  <mat-step [label]="'wizard.step.editing' | t" [completed]="store.hasEdited()">
+    <app-image-editor />
+    <div class="step-actions">
+      <button matButton matStepperPrevious>{{ 'common.back' | t }}</button>
+      <button
+        matButton="filled"
+        (click)="confirmEditing(stepper)"
+        [disabled]="!editor()?.ready()"
+      >
+        {{ 'common.next' | t }}
+      </button>
+    </div>
+  </mat-step>
+
+  <mat-step
+    [label]="'wizard.step.decomposition' | t"
+    [completed]="store.hasDecomposition()"
+  >
+    <app-decomposition-step />
+    <div class="step-actions">
+      <button matButton matStepperPrevious>{{ 'common.back' | t }}</button>
+      <button
+        matButton="filled"
+        matStepperNext
+        [disabled]="!store.hasDecomposition()"
+      >
+        {{ 'common.next' | t }}
+      </button>
+    </div>
+  </mat-step>
+
+  <mat-step [label]="'wizard.step.download' | t" [completed]="false">
+    <app-download-step />
+    <div class="step-actions">
+      <button matButton matStepperPrevious>{{ 'common.back' | t }}</button>
+    </div>
+  </mat-step>
+</mat-stepper>

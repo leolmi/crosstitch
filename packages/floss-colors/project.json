@@ -1,0 +1,9 @@
+{
+  "name": "floss-colors",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/floss-colors/src",
+  "projectType": "library",
+  "tags": ["scope:shared"],
+  "// targets": "to see all targets run: nx show project floss-colors --web",
+  "targets": {}
+}

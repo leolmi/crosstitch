@@ -1,0 +1,294 @@
+@if (!store.hasDecomposition()) {
+  <p class="placeholder">{{ 'decomposition.placeholder-editing-first' | t }}</p>
+} @else if (store.decomposition(); as d) {
+  <div class="decomposition">
+    <aside class="controls">
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'decomposition.fabric-label' | t }}</mat-label>
+        <mat-select
+          [value]="fabricCount()"
+          [disabled]="manualEdited()"
+          (selectionChange)="fabricCount.set($event.value)"
+        >
+          @for (fabric of fabrics; track fabric.key) {
+            <mat-option [value]="fabric.count">{{ fabric.key | t }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'decomposition.width-cm' | t }}</mat-label>
+        <input
+          matInput
+          type="number"
+          min="2"
+          max="150"
+          step="0.5"
+          [disabled]="manualEdited()"
+          [value]="widthCm() | number: '1.0-1'"
+          (change)="setWidthCm($any($event.target).value)"
+        />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'decomposition.width-stitches' | t }}</mat-label>
+        <input
+          matInput
+          type="number"
+          [min]="10"
+          [max]="500"
+          step="1"
+          [disabled]="manualEdited()"
+          [value]="gridWidth()"
+          (change)="setWidthStitches($any($event.target).value)"
+        />
+      </mat-form-field>
+
+      <label for="max-colors">
+        {{ 'decomposition.max-colors' | t: { count: maxColors() } }}
+      </label>
+      <mat-slider
+        discrete
+        [min]="2"
+        [max]="60"
+        [step]="1"
+        [disabled]="manualEdited()"
+      >
+        <input
+          id="max-colors"
+          matSliderThumb
+          [value]="maxColors()"
+          (valueChange)="maxColors.set($event)"
+        />
+      </mat-slider>
+
+      <span class="control-label" id="standard-label">
+        {{ 'decomposition.standard-label' | t }}
+      </span>
+      <mat-button-toggle-group
+        aria-labelledby="standard-label"
+        hideSingleSelectionIndicator
+        [value]="standard()"
+        [disabled]="manualEdited()"
+        (change)="standard.set($event.value)"
+      >
+        <mat-button-toggle value="dmc">DMC</mat-button-toggle>
+        <mat-button-toggle value="anchor">Anchor</mat-button-toggle>
+      </mat-button-toggle-group>
+      @if (standard() === 'anchor') {
+        <p class="hint">
+          {{ 'decomposition.anchor-hint' | t: { count: anchorPaletteSize } }}
+        </p>
+      }
+
+      <label class="fabric-row">
+        <span>{{ 'decomposition.fabric-color' | t }}</span>
+        <input
+          type="color"
+          [value]="fabricColor()"
+          (input)="fabricColor.set($any($event.target).value)"
+        />
+      </label>
+
+      @if (manualEdited()) {
+        <div class="lock-note">
+          <mat-icon>lock</mat-icon>
+          <span>{{ 'decomposition.lock-note' | t }}</span>
+          <button matButton (click)="regenerate()">
+            {{ 'decomposition.regenerate' | t }}
+          </button>
+        </div>
+      }
+    </aside>
+
+    <div class="result">
+      <div class="summary">
+        @if (store.decomposition(); as decomposition) {
+          <div class="info">
+            <span>
+              {{
+                'decomposition.info-points'
+                  | t: { width: decomposition.width, height: decomposition.height }
+              }}
+            </span>
+            <span>
+              {{ decomposition.widthCm | number: '1.0-1' }} ×
+              {{ decomposition.heightCm | number: '1.0-1' }} cm
+            </span>
+            <span>
+              {{
+                'decomposition.info-colors'
+                  | t: { count: decomposition.palette.length }
+              }}
+            </span>
+            <span>
+              {{ 'decomposition.info-total-stitches' | t: { count: totalStitches() } }}
+            </span>
+          </div>
+        }
+
+        <div class="toolbar">
+          <button
+            matIconButton
+            [matTooltip]="'decomposition.undo' | t"
+            (click)="undo()"
+            [disabled]="!canUndo()"
+          >
+            <mat-icon>undo</mat-icon>
+          </button>
+          <button
+            matIconButton
+            [matTooltip]="'decomposition.redo' | t"
+            (click)="redo()"
+            [disabled]="!canRedo()"
+          >
+            <mat-icon>redo</mat-icon>
+          </button>
+
+          <span class="divider"></span>
+
+          <button
+            matIconButton
+            [class.active]="editTool() === 'paint'"
+            [matTooltip]="'decomposition.tool.paint' | t"
+            (click)="toggleTool('paint')"
+          >
+            <mat-icon>brush</mat-icon>
+          </button>
+          <button
+            matIconButton
+            class="paint-swatch"
+            [matTooltip]="'decomposition.tool.choose-color' | t"
+            (click)="choosePaintColor()"
+          >
+            <span
+              class="swatch"
+              [style.background]="paintColor()?.hex ?? 'transparent'"
+              aria-hidden="true"
+            ></span>
+          </button>
+          <button
+            matIconButton
+            [class.active]="editTool() === 'erase'"
+            [matTooltip]="'decomposition.tool.erase' | t"
+            (click)="toggleTool('erase')"
+          >
+            <mat-icon>format_color_reset</mat-icon>
+          </button>
+
+          <span class="divider"></span>
+
+          <button matIconButton [matTooltip]="'common.zoom-out' | t" (click)="zoomOut()">
+            <mat-icon>zoom_out</mat-icon>
+          </button>
+          <span class="zoom-label">{{ effectiveCell() }} px/pt</span>
+          <button matIconButton [matTooltip]="'common.zoom-in' | t" (click)="zoomIn()">
+            <mat-icon>zoom_in</mat-icon>
+          </button>
+          <button
+            matIconButton
+            [matTooltip]="'common.zoom-fit' | t"
+            (click)="fitPreview()"
+          >
+            <mat-icon>fit_screen</mat-icon>
+          </button>
+        </div>
+
+        @if (computing()) {
+          <mat-progress-bar
+            mode="indeterminate"
+            [attr.aria-label]="'decomposition.computing-aria' | t"
+          />
+        }
+      </div>
+
+      @if (mergeNotice(); as notice) {
+        <div class="merge-notice" role="status">
+          <mat-icon>merge_type</mat-icon>
+          <span>{{ notice }}</span>
+          <button
+            matIconButton
+            [matTooltip]="'common.close' | t"
+            (click)="dismissMergeNotice()"
+          >
+            <mat-icon>close</mat-icon>
+          </button>
+        </div>
+      }
+
+      @if (store.decomposition() && !store.hasDecomposition()) {
+        <p class="placeholder">
+          {{ 'decomposition.empty-transparent' | t }}
+        </p>
+      }
+
+      <div class="preview-viewport" #previewViewport>
+        <canvas
+          #preview
+          [class.editing]="editTool()"
+          (pointerdown)="onPointerDown($event)"
+          (pointermove)="onPointerMove($event)"
+          (pointerup)="onPointerUp()"
+          (pointercancel)="onPointerUp()"
+        ></canvas>
+      </div>
+    </div>
+
+    <aside class="legend">
+      <div class="legend-head">
+        <h4>{{ 'decomposition.legend.title' | t }}</h4>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>{{ 'decomposition.legend.sort-label' | t }}</mat-label>
+          <mat-select
+            [value]="sortMode()"
+            (selectionChange)="sortMode.set($event.value)"
+          >
+            <mat-option value="count">
+              {{ 'decomposition.legend.sort-count' | t }}
+            </mat-option>
+            <mat-option value="hue">
+              {{ 'decomposition.legend.sort-hue' | t }}
+            </mat-option>
+            <mat-option value="code">
+              {{ 'decomposition.legend.sort-code' | t }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+      @for (entry of sortedPalette(); track entry.color.dmc) {
+        <div
+          class="legend-row"
+          [class.highlighted]="entry.color.dmc === highlightedDmc()"
+        >
+          <span
+            class="swatch"
+            [style.background]="entry.color.hex"
+            aria-hidden="true"
+          ></span>
+          <span class="code">{{ primaryCode(entry) }}</span>
+          <span class="detail">
+            <span
+              class="name"
+              [matTooltip]="entry.color.name"
+              matTooltipShowDelay="300"
+              >{{ entry.color.name }}</span
+            >
+            <span class="alt">
+              {{ 'decomposition.legend.entry-count' | t: { count: entry.count } }}
+            </span>
+          </span>
+          <button
+            matIconButton
+            class="edit-color"
+            [matTooltip]="'decomposition.legend.edit-color' | t"
+            (click)="editEntry(entry)"
+          >
+            <mat-icon>edit</mat-icon>
+          </button>
+        </div>
+      } @empty {
+        <p class="hint">{{ 'decomposition.legend.empty' | t }}</p>
+      }
+    </aside>
+  </div>
+}

@@ -1,0 +1,74 @@
+@if (store.source(); as source) {
+  <div class="preview">
+    <img [src]="source.objectUrl" [alt]="'source.preview-alt' | t" />
+    <div class="preview-info">
+      <p class="preview-name">
+        {{ source.fileName ?? source.sourceUrl }}
+      </p>
+      <p class="preview-meta">
+        {{ source.width }} × {{ source.height }} px ·
+        {{ source.size / 1024 | number: '1.0-0' }} KB
+      </p>
+      <button matButton="outlined" (click)="remove()">
+        <mat-icon>delete</mat-icon>
+        {{ 'source.remove' | t }}
+      </button>
+    </div>
+  </div>
+} @else {
+  <div
+    class="dropzone"
+    [class.dropzone-active]="dragOver()"
+    (dragover)="onDragOver($event)"
+    (dragleave)="onDragLeave()"
+    (drop)="onDrop($event)"
+  >
+    <mat-icon class="dropzone-icon">add_photo_alternate</mat-icon>
+    <p>{{ 'source.dropzone-hint' | t }}</p>
+    <button matButton="filled" (click)="fileInput.click()">
+      <mat-icon>upload</mat-icon>
+      {{ 'source.choose-file' | t }}
+    </button>
+    <input
+      #fileInput
+      type="file"
+      accept="image/*,.xstitch,application/json"
+      hidden
+      (change)="onFileInput($event)"
+    />
+  </div>
+
+  <div class="url-row">
+    <mat-form-field class="url-field" appearance="outline">
+      <mat-label>{{ 'source.url-label' | t }}</mat-label>
+      <input
+        matInput
+        type="url"
+        placeholder="https://esempio.com/immagine.jpg"
+        [value]="url()"
+        (input)="url.set($any($event.target).value)"
+        (keydown.enter)="loadFromUrl()"
+      />
+    </mat-form-field>
+    <button
+      matButton="tonal"
+      (click)="loadFromUrl()"
+      [disabled]="!url().trim() || loading()"
+    >
+      {{ 'source.load-url' | t }}
+    </button>
+  </div>
+}
+
+@if (loading()) {
+  <mat-progress-bar
+    mode="indeterminate"
+    [attr.aria-label]="'source.loading-aria' | t"
+  />
+}
+@if (error(); as message) {
+  <p class="error" role="alert">
+    <mat-icon>error_outline</mat-icon>
+    {{ message }}
+  </p>
+}

@@ -1,0 +1,346 @@
+@if (!store.hasSource()) {
+  <p class="placeholder">
+    {{ 'editor.placeholder-no-source' | t }}
+  </p>
+} @else {
+  <div class="editor">
+    <div class="topbar">
+      <button
+        matIconButton
+        [matTooltip]="'editor.undo' | t"
+        (click)="undo()"
+        [disabled]="!canUndo()"
+      >
+        <mat-icon>undo</mat-icon>
+      </button>
+      <button
+        matIconButton
+        [matTooltip]="'editor.redo' | t"
+        (click)="redo()"
+        [disabled]="!canRedo()"
+      >
+        <mat-icon>redo</mat-icon>
+      </button>
+      <button
+        matIconButton
+        [matTooltip]="'editor.reset-original' | t"
+        (click)="resetToOriginal()"
+        [disabled]="!ready()"
+      >
+        <mat-icon>restart_alt</mat-icon>
+      </button>
+
+      <span class="spacer"></span>
+
+      @if (size(); as s) {
+        <span class="meta">{{ s.width }} × {{ s.height }} px</span>
+      }
+
+      <button matIconButton [matTooltip]="'common.zoom-out' | t" (click)="zoomOut()">
+        <mat-icon>zoom_out</mat-icon>
+      </button>
+      <span class="meta zoom-label">{{ zoomPercent() }}%</span>
+      <button matIconButton [matTooltip]="'common.zoom-in' | t" (click)="zoomIn()">
+        <mat-icon>zoom_in</mat-icon>
+      </button>
+      <button matIconButton [matTooltip]="'common.zoom-fit' | t" (click)="fitZoom()">
+        <mat-icon>fit_screen</mat-icon>
+      </button>
+      <button
+        matIconButton
+        class="real-size"
+        [matTooltip]="'editor.real-size' | t"
+        (click)="realSize()"
+      >
+        1:1
+      </button>
+    </div>
+
+    <div class="body">
+      <aside class="tools">
+        <div class="tool-group">
+          <mat-button-toggle
+            [checked]="tool() === 'wand'"
+            (change)="toggleTool('wand')"
+            [matTooltip]="'editor.tool.wand-tip' | t"
+          >
+            <mat-icon>auto_fix_high</mat-icon>
+            {{ 'editor.tool.wand' | t }}
+          </mat-button-toggle>
+          <mat-button-toggle
+            [checked]="tool() === 'eraser'"
+            (change)="toggleTool('eraser')"
+            [matTooltip]="'editor.tool.eraser-tip' | t"
+          >
+            <mat-icon>cleaning_services</mat-icon>
+            {{ 'editor.tool.eraser' | t }}
+          </mat-button-toggle>
+          <mat-button-toggle
+            [checked]="tool() === 'crop'"
+            (change)="toggleTool('crop')"
+            [matTooltip]="'editor.tool.crop-tip' | t"
+          >
+            <mat-icon>crop</mat-icon>
+            {{ 'editor.tool.crop' | t }}
+          </mat-button-toggle>
+        </div>
+
+        <section class="options">
+          @switch (tool()) {
+            @case ('wand') {
+              <div class="slider-row">
+                <label for="wand-tolerance">
+                  {{ 'editor.wand.tolerance' | t: { value: tolerance() } }}
+                </label>
+                <button
+                  matIconButton
+                  class="mini-reset"
+                  [matTooltip]="'editor.reset-initial' | t"
+                  (click)="tolerance.set(defaultTolerance)"
+                  [disabled]="tolerance() === defaultTolerance"
+                >
+                  <mat-icon>refresh</mat-icon>
+                </button>
+              </div>
+              <mat-slider [min]="0" [max]="100" [step]="1">
+                <input
+                  id="wand-tolerance"
+                  matSliderThumb
+                  [value]="tolerance()"
+                  (valueChange)="tolerance.set($event)"
+                />
+              </mat-slider>
+              <mat-slide-toggle
+                [checked]="contiguous()"
+                (change)="contiguous.set($event.checked)"
+              >
+                {{ 'editor.wand.contiguous' | t }}
+              </mat-slide-toggle>
+              @if (wandFeedback(); as feedback) {
+                <p class="hint">{{ feedback }}</p>
+              }
+            }
+            @case ('eraser') {
+              <div class="slider-row">
+                <label for="eraser-size">
+                  {{ 'editor.eraser.brush-size' | t: { size: brushSize() } }}
+                </label>
+                <button
+                  matIconButton
+                  class="mini-reset"
+                  [matTooltip]="'editor.reset-initial' | t"
+                  (click)="brushSize.set(defaultBrushSize)"
+                  [disabled]="brushSize() === defaultBrushSize"
+                >
+                  <mat-icon>refresh</mat-icon>
+                </button>
+              </div>
+              <mat-slider [min]="4" [max]="120" [step]="2">
+                <input
+                  id="eraser-size"
+                  matSliderThumb
+                  [value]="brushSize()"
+                  (valueChange)="brushSize.set($event)"
+                />
+              </mat-slider>
+            }
+            @case ('crop') {
+              <p class="hint">
+                {{ 'editor.crop.hint' | t }}
+              </p>
+              <button
+                matButton="filled"
+                (click)="applyCrop()"
+                [disabled]="!cropRect()"
+              >
+                {{ 'editor.crop.apply' | t }}
+              </button>
+              <button
+                matButton
+                (click)="clearCropSelection()"
+                [disabled]="!cropRect()"
+              >
+                {{ 'editor.crop.clear' | t }}
+              </button>
+            }
+            @default {
+              <p class="hint">
+                {{ 'editor.no-tool-hint' | t }}
+              </p>
+            }
+          }
+        </section>
+
+        <section class="options">
+          <h4>{{ 'editor.rotation.title' | t }}</h4>
+          <div class="button-row">
+            <button
+              matIconButton
+              [matTooltip]="'editor.rotation.left' | t"
+              (click)="rotate('ccw')"
+              [disabled]="!ready()"
+            >
+              <mat-icon>rotate_left</mat-icon>
+            </button>
+            <button
+              matIconButton
+              [matTooltip]="'editor.rotation.right' | t"
+              (click)="rotate('cw')"
+              [disabled]="!ready()"
+            >
+              <mat-icon>rotate_right</mat-icon>
+            </button>
+            <button
+              matIconButton
+              [matTooltip]="'editor.rotation.flip' | t"
+              (click)="flip()"
+              [disabled]="!ready()"
+            >
+              <mat-icon>flip</mat-icon>
+            </button>
+          </div>
+          <div class="slider-row">
+            <label for="fine-angle">
+              {{ 'editor.rotation.fine-angle' | t: { angle: fineAngle() } }}
+            </label>
+            <button
+              matIconButton
+              class="mini-reset"
+              [matTooltip]="'editor.reset-zero' | t"
+              (click)="fineAngle.set(0)"
+              [disabled]="fineAngle() === 0"
+            >
+              <mat-icon>refresh</mat-icon>
+            </button>
+          </div>
+          <mat-slider [min]="-45" [max]="45" [step]="1">
+            <input
+              id="fine-angle"
+              matSliderThumb
+              [value]="fineAngle()"
+              (valueChange)="fineAngle.set($event)"
+            />
+          </mat-slider>
+          <button
+            matButton="tonal"
+            (click)="applyFineRotation()"
+            [disabled]="fineAngle() === 0"
+          >
+            {{ 'editor.rotation.apply' | t }}
+          </button>
+        </section>
+
+        <section class="options">
+          <h4>{{ 'editor.adjust.title' | t }}</h4>
+          <div class="slider-row">
+            <label for="adjust-brightness">
+              {{ 'editor.adjust.brightness' | t: { value: brightness() } }}
+            </label>
+            <button
+              matIconButton
+              class="mini-reset"
+              [matTooltip]="'editor.reset-zero' | t"
+              (click)="brightness.set(0)"
+              [disabled]="brightness() === 0"
+            >
+              <mat-icon>refresh</mat-icon>
+            </button>
+          </div>
+          <mat-slider [min]="-100" [max]="100" [step]="1">
+            <input
+              id="adjust-brightness"
+              matSliderThumb
+              [value]="brightness()"
+              (valueChange)="brightness.set($event)"
+            />
+          </mat-slider>
+          <div class="slider-row">
+            <label for="adjust-contrast">
+              {{ 'editor.adjust.contrast' | t: { value: contrast() } }}
+            </label>
+            <button
+              matIconButton
+              class="mini-reset"
+              [matTooltip]="'editor.reset-zero' | t"
+              (click)="contrast.set(0)"
+              [disabled]="contrast() === 0"
+            >
+              <mat-icon>refresh</mat-icon>
+            </button>
+          </div>
+          <mat-slider [min]="-100" [max]="100" [step]="1">
+            <input
+              id="adjust-contrast"
+              matSliderThumb
+              [value]="contrast()"
+              (valueChange)="contrast.set($event)"
+            />
+          </mat-slider>
+          <div class="slider-row">
+            <label for="adjust-saturation">
+              {{ 'editor.adjust.saturation' | t: { value: saturation() } }}
+            </label>
+            <button
+              matIconButton
+              class="mini-reset"
+              [matTooltip]="'editor.reset-zero' | t"
+              (click)="saturation.set(0)"
+              [disabled]="saturation() === 0"
+            >
+              <mat-icon>refresh</mat-icon>
+            </button>
+          </div>
+          <mat-slider [min]="-100" [max]="100" [step]="1">
+            <input
+              id="adjust-saturation"
+              matSliderThumb
+              [value]="saturation()"
+              (valueChange)="saturation.set($event)"
+            />
+          </mat-slider>
+          <div class="button-row">
+            <button
+              matButton="tonal"
+              (click)="applyAdjustments()"
+              [disabled]="!hasAdjustments()"
+            >
+              {{ 'common.apply' | t }}
+            </button>
+            <button
+              matButton
+              (click)="resetAdjustments()"
+              [disabled]="!hasAdjustments()"
+            >
+              {{ 'editor.adjust.reset' | t }}
+            </button>
+          </div>
+        </section>
+      </aside>
+
+      <div class="viewport" #viewport>
+        <div
+          class="stage"
+          [style.width.px]="stageWidth()"
+          [style.height.px]="stageHeight()"
+        >
+          <canvas
+            #canvas
+            class="image-canvas"
+            [style.filter]="cssFilter()"
+            [style.transform]="previewTransform()"
+          ></canvas>
+          <canvas
+            #overlay
+            class="overlay-canvas"
+            [class.no-tool]="!tool()"
+            [class.pixelated]="zoom() >= 2"
+            (pointerdown)="onPointerDown($event)"
+            (pointermove)="onPointerMove($event)"
+            (pointerup)="onPointerUp()"
+            (pointercancel)="onPointerUp()"
+          ></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+}
