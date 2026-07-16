@@ -1,5 +1,7 @@
 # Crosstitch
 
+**➡ Prova l'app: [crosstitch.app](https://crosstitch.app/)**
+
 Web app che trasforma una qualsiasi immagine in uno **schema per punto croce** pronto da stampare: PDF con schema a simboli, lista filati DMC/Anchor e stima del filato necessario.
 
 Tutta l'elaborazione avviene **nel browser**: le immagini non vengono caricate su alcun server e lo schema può essere salvato in un file locale riapribile in seguito.

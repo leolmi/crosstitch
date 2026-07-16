@@ -4,6 +4,7 @@
   "license": "MIT",
   "author": "leo.olmi",
   "url": "https://github.com/leolmi/crosstitch",
+  "homepage": "https://crosstitch.app/",
   "scripts": {
     "start": "node dist/apps/backend/main.js",
     "build": "npx gulp deploy"

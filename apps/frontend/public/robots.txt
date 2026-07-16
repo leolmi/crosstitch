@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://crosstitch-fffa92b31305.herokuapp.com/sitemap.xml
+Sitemap: https://crosstitch.app/sitemap.xml
