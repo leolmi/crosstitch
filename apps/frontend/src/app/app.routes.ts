@@ -2,12 +2,13 @@ import { Route } from '@angular/router';
 
 export const appRoutes: Route[] = [
   {
-    path: 'pattern',
+    // il wizard vive sulla root: URL canonico pulito per i motori di ricerca
+    path: '',
+    pathMatch: 'full',
     loadComponent: () =>
       import('./features/pattern-wizard/pattern-wizard').then(
         (m) => m.PatternWizard,
       ),
   },
-  { path: '', pathMatch: 'full', redirectTo: 'pattern' },
-  { path: '**', redirectTo: 'pattern' },
+  { path: '**', redirectTo: '' },
 ];

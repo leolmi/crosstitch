@@ -12,6 +12,15 @@ export const it = {
   'common.next': 'Avanti',
   'common.back': 'Indietro',
 
+  // SEO: titolo del documento e meta description (vedi App), intestazione
+  // visibile della pagina (vedi PatternWizard)
+  'seo.title': 'Crosstitch - App per Punto Croce Online | Disegna e Ricama',
+  'seo.description':
+    'Trasforma le tue immagini in schemi punto croce: ritocca la foto, scegli i colori dei filati DMC o Anchor e scarica il PDF con schema a simboli e lista filati. Gratis, senza registrazione.',
+  'intro.title': 'Crea schemi punto croce dalle tue immagini',
+  'intro.text':
+    'Crosstitch è un’app gratuita per il punto croce: carica una foto o un disegno, ritocca l’immagine, scomponila nei colori dei filati DMC o Anchor e scarica lo schema in PDF con legenda e lista filati. Tutto nel browser, senza registrazione.',
+
   // barra dell'applicazione
   'toolbar.language': 'Lingua',
   'toolbar.github': 'Codice sorgente su GitHub',

@@ -1,3 +1,9 @@
+<!-- intestazione descrittiva: contenuto testuale indicizzabile dai motori di ricerca -->
+<header class="page-intro">
+  <h1>{{ 'intro.title' | t }}</h1>
+  <p>{{ 'intro.text' | t }}</p>
+</header>
+
 <mat-stepper #stepper [linear]="true" orientation="horizontal" class="wizard">
   <mat-step [label]="'wizard.step.source' | t" [completed]="store.hasSource()">
     <app-source-step />

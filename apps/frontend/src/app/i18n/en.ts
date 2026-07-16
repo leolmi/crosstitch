@@ -8,6 +8,13 @@ export const en: Record<TranslationKey, string> = {
   'common.next': 'Next',
   'common.back': 'Back',
 
+  'seo.title': 'Crosstitch - Online Cross Stitch Pattern Maker | Design & Embroider',
+  'seo.description':
+    'Turn your images into cross stitch patterns: edit the picture, pick DMC or Anchor floss colours and download a PDF with symbol chart and floss list. Free, no sign-up.',
+  'intro.title': 'Create cross stitch patterns from your images',
+  'intro.text':
+    'Crosstitch is a free cross stitch web app: load a photo or drawing, touch up the image, break it down into DMC or Anchor floss colours and download the pattern as a PDF with legend and floss list. All in your browser, no sign-up required.',
+
   'toolbar.language': 'Language',
   'toolbar.github': 'Source code on GitHub',
   'toolbar.theme': 'Theme',

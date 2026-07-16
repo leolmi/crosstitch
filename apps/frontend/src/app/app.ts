@@ -1,5 +1,5 @@
 import { Component, computed, effect, inject, signal } from '@angular/core';
-import { Title } from '@angular/platform-browser';
+import { Meta, Title } from '@angular/platform-browser';
 import { RouterOutlet } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
@@ -47,14 +47,23 @@ export class App {
   );
 
   private readonly browserTitle = inject(Title);
+  private readonly meta = inject(Meta);
 
   constructor() {
-    // Tab del browser: "Crosstitch - {titolo}" quando il titolo è definito, solo "Crosstitch" altrimenti.
+    // Tab del browser: "Crosstitch - {titolo}" quando un documento è aperto,
+    // altrimenti il titolo SEO nella lingua attiva.
     effect(() => {
       const docTitle = this.store.title().trim();
       this.browserTitle.setTitle(
-        docTitle ? `${this.appName()} - ${docTitle}` : this.appName(),
+        docTitle ? `${this.appName()} - ${docTitle}` : this.i18n.t('seo.title'),
       );
+    });
+    // Meta description allineata alla lingua attiva.
+    effect(() => {
+      this.meta.updateTag({
+        name: 'description',
+        content: this.i18n.t('seo.description'),
+      });
     });
   }
 }

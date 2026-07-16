@@ -4,6 +4,21 @@
   padding: 0.75rem 1rem 1rem;
 }
 
+.page-intro {
+  padding: 0.25rem 0.5rem 0.75rem;
+
+  h1 {
+    font: var(--mat-sys-title-large);
+    margin: 0;
+  }
+
+  p {
+    font: var(--mat-sys-body-medium);
+    color: var(--mat-sys-on-surface-variant);
+    margin: 0.25rem 0 0;
+  }
+}
+
 .wizard {
   border-radius: 1rem;
   background: var(--mat-sys-surface-container-low);
