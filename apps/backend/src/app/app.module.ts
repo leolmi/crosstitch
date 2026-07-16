@@ -6,6 +6,8 @@ import { ImageProxyController } from './image-proxy/image-proxy.controller';
 import { ImageProxyService } from './image-proxy/image-proxy.service';
 import { PatternsController } from './patterns/patterns.controller';
 import { PatternsService } from './patterns/patterns.service';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 
 @Module({
   imports: [
@@ -25,6 +27,7 @@ import { PatternsService } from './patterns/patterns.service';
     //     ),
     //   }),
     // }),
+    ServeStaticModule.forRoot({ rootPath: join(__dirname, 'public/browser') }),
   ],
   controllers: [AppController, ImageProxyController, PatternsController],
   providers: [AppService, ImageProxyService, PatternsService],

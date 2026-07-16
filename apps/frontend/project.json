@@ -11,7 +11,7 @@
       "outputs": ["{options.outputPath}"],
       "defaultConfiguration": "production",
       "options": {
-        "outputPath": "dist/apps/frontend",
+        "outputPath": "dist/apps/backend/public",
         "browser": "apps/frontend/src/main.ts",
         "tsConfig": "apps/frontend/tsconfig.app.json",
         "inlineStyleLanguage": "scss",
