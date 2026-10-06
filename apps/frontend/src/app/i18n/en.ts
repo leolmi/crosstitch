@@ -147,6 +147,8 @@ export const en: Record<TranslationKey, string> = {
   'download.floss-estimated-label': 'Estimated thread:',
   'download.floss-skeins': '{count} skeins',
   'download.floss-meters-note': '(~{meters} m) · rough estimate',
+  'download.chart-colors': 'Colour chart',
+  'download.chart-colors-hint': 'Turn off to print symbols only, without coloured background.',
   'download.pdf-hint':
     'The PDF contains the cover with the preview and page tiles, the thread list (with estimated metres/skeins and “Have” and “Buy” checkboxes, printable on its own) and the symbol chart.',
   'download.download-btn': 'Download PDF',

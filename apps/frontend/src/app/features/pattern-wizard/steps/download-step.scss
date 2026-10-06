@@ -70,6 +70,16 @@
   }
 }
 
+.chart-colors {
+  margin: 0 0 1rem;
+
+  .chart-colors-hint {
+    margin: 0 0 0 2.5rem;
+    font: var(--mat-sys-body-small);
+    color: var(--mat-sys-on-surface-variant);
+  }
+}
+
 .hint {
   font: var(--mat-sys-body-small);
   color: var(--mat-sys-on-surface-variant);

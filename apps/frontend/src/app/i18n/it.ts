@@ -162,6 +162,8 @@ export const it = {
   'download.floss-estimated-label': 'Filato stimato:',
   'download.floss-skeins': '{count} matassine',
   'download.floss-meters-note': '(~{meters} m) · stima indicativa',
+  'download.chart-colors': 'Schema a colori',
+  'download.chart-colors-hint': 'Disattiva per stampare solo i simboli, senza sfondo colorato.',
   'download.pdf-hint':
     'Il PDF contiene la copertina con l’anteprima e i riquadri delle pagine, la lista filati (con metri/matassine stimati e caselle “Ho” e “Compra”, stampabile da sola) e lo schema a simboli.',
   'download.download-btn': 'Scarica PDF',

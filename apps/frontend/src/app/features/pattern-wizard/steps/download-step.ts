@@ -1,6 +1,7 @@
 import { Component, computed, effect, inject, signal } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
@@ -19,6 +20,7 @@ import { TranslatePipe } from '../../../i18n/translate-pipe';
   imports: [
     DecimalPipe,
     MatButtonModule,
+    MatCheckboxModule,
     MatFormFieldModule,
     MatIconModule,
     MatInputModule,
@@ -39,6 +41,8 @@ export class DownloadStep {
   protected readonly error = signal<string | null>(null);
   /** capi usati per la stima del consumo filato */
   protected readonly strands = signal(2);
+  /** celle dello schema con fondo colorato (false = solo simboli) */
+  protected readonly chartColors = signal(true);
 
   constructor() {
     // al cambio di sorgente (nuova immagine, rimozione, documento aperto)
@@ -46,6 +50,7 @@ export class DownloadStep {
     effect(() => {
       this.store.source();
       this.strands.set(2);
+      this.chartColors.set(true);
       this.error.set(null);
     });
   }
@@ -104,6 +109,7 @@ export class DownloadStep {
         title,
         previewPng,
         strands: this.strands(),
+        chartColors: this.chartColors(),
         i18n: {
           t: (key, params) => this.i18n.t(key, params),
           lang: this.i18n.lang(),

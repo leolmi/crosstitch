@@ -31,6 +31,11 @@ export interface PatternPdfOptions {
   title: string;
   /** Capi usati per la stima del consumo filato. */
   strands: number;
+  /**
+   * Se false, le pagine dello schema mostrano solo i simboli in nero, senza
+   * fondo colorato nelle celle (stampa più leggera). Default: true.
+   */
+  chartColors?: boolean;
   /** PNG dell'anteprima a colori per la copertina. */
   previewPng?: Uint8Array;
   /** Traduttore e lingua per il testo del PDF. */
@@ -441,11 +446,12 @@ async function drawChart(
   symbols: SymbolAssignment[],
 ): Promise<void> {
   const { decomposition: d } = options;
+  const colored = options.chartColors ?? true;
   const symbolByIndex = new Map<number, string>();
   const inkByIndex = new Map<number, RGB>();
   for (const s of symbols) {
     symbolByIndex.set(s.paletteIndex, s.symbol);
-    inkByIndex.set(s.paletteIndex, contrastInk(s.color.hex));
+    inkByIndex.set(s.paletteIndex, colored ? contrastInk(s.color.hex) : INK);
   }
 
   const cell = CHART_CELL;
@@ -475,8 +481,8 @@ async function drawChart(
       color: MUTED,
     });
 
-    // celle con ricamo: riempimento colore + simbolo. Le celle vuote
-    // restano bianche (nessun fondo) per non caricare la stampa.
+    // celle con ricamo: riempimento colore (se richiesto) + simbolo. Le celle
+    // vuote restano bianche (nessun fondo) per non caricare la stampa.
     for (let r = 0; r < rows; r++) {
       for (let c = 0; c < cols; c++) {
         const index2 = d.cells[(row0 + r) * d.width + (col0 + c)];
@@ -485,14 +491,15 @@ async function drawChart(
         }
         const cellX = originX + c * cell;
         const cellY = topY - (r + 1) * cell;
-        const color = d.palette[index2].color.hex;
-        page.drawRectangle({
-          x: cellX,
-          y: cellY,
-          width: cell,
-          height: cell,
-          color: toRgb(color),
-        });
+        if (colored) {
+          page.drawRectangle({
+            x: cellX,
+            y: cellY,
+            width: cell,
+            height: cell,
+            color: toRgb(d.palette[index2].color.hex),
+          });
+        }
         const symbol = symbolByIndex.get(index2) ?? '';
         const size = cell * 0.62;
         const w = ctx.font.widthOfTextAtSize(symbol, size);

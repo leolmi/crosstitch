@@ -64,6 +64,16 @@
       </p>
     </div>
 
+    <div class="chart-colors">
+      <mat-checkbox
+        [checked]="chartColors()"
+        (change)="chartColors.set($event.checked)"
+      >
+        {{ 'download.chart-colors' | t }}
+      </mat-checkbox>
+      <p class="chart-colors-hint">{{ 'download.chart-colors-hint' | t }}</p>
+    </div>
+
     <p class="hint">
       {{ 'download.pdf-hint' | t }}
     </p>
